@@ -2,7 +2,9 @@ package grails.plugin.easyb.test.taglib
 
 import grails.easyb.plugin.test.taglib.SimpleTagLib
 
-description "This story makes sure that it is possible to mock taglibs through the mixin GroovyPageUnitTestMixin"
+description """
+This story makes sure that it is possible to mock taglibs
+through the mixin GroovyPageUnitTestMixin"""
 
 
 scenario "a taglib is mocked and verified by applying a template",{
@@ -15,12 +17,11 @@ scenario "a taglib is mocked and verified by applying a template",{
 	}
 }
 
-
 scenario "built in GroovyPageUnitTestMixin asserts are not supported",{
 	given "a mocked tagLib",{
 		mockTagLib(SimpleTagLib)
 	}
-	then "the trying to use built in asserts throws MissingMethodException", {
+	then "any attempt to use built in asserts throws MissingMethodException", {
 		ensureThrows(MissingMethodException) {
 			assertOutputEquals ('Hello World', '<s:hello />')
 		}
