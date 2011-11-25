@@ -21,7 +21,7 @@ public class InjectTaglibTestRunner extends InjectMvcTestRunner {
         super(fullPathClassName)
     }
 
-    protected void initialize() {
+    protected void beforeBehavior() {
         log.debug "init: taglib test runner"
         runnerType = "Taglib for ${fullPathClassName} "
         try {
@@ -35,16 +35,16 @@ public class InjectTaglibTestRunner extends InjectMvcTestRunner {
         super.injectMethods(binding)
     }
 
-    public void setUp() {
-        super.setUp()
+    public void beforeEachStep() {
+        super.beforeEachStep()
 
         if (testCase)
         binding.tagLib = testCase.tagLib
     }
 
 
-    public void tearDown() {
-        super.tearDown()
+    public void afterEachStep() {
+        super.afterEachStep()
 
         if (testCase)
         binding.tagLib = null

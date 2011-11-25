@@ -12,7 +12,7 @@ import grails.plugin.easyb.test.inject.InjectTestRunner
 public class InjectGSPTestRunner extends InjectTestRunner {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(InjectGSPTestRunner)
 
-    protected void initialize() {
+    protected void beforeBehavior() {
         log.debug "initializing grails controller test"
         runnerType = "Grails GSP Runner"
         try {

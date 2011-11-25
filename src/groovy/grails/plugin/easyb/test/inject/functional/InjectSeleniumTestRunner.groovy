@@ -7,7 +7,7 @@ import grails.plugin.easyb.test.inject.InjectTestRunner
 public class InjectSeleniumTestRunner extends InjectTestRunner {
     private static final Logger log = LoggerFactory.getLogger(InjectSeleniumTestRunner)
 
-    protected void initialize() {
+    protected void beforeBehavior() {
         runnerType = "Grails Selenium RC Test"
     }
 

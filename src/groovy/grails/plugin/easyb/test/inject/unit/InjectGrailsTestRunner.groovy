@@ -5,27 +5,73 @@ package grails.plugin.easyb.test.inject.unit
  * Time: 9:51:13 PM
  */
 
-import grails.test.GrailsUnitTestCase
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 import grails.plugin.easyb.test.inject.InjectTestRunner
+import grails.plugin.easyb.test.inject.integration.JUnit4TestCase
+import grails.test.mixin.domain.DomainClassUnitTestMixin
+import grails.test.mixin.web.ControllerUnitTestMixin;
+import grails.test.mixin.web.GroovyPageUnitTestMixin;
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
 
-    protected void initialize() {
+	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
+		GroovyPageUnitTestMixin]
+	
+    protected void beforeBehavior() {
         runnerType = "Grails Unit Test"
-        this.testCase = new GrailsUnitTestCase()
+        try {
+			testCase = new JUnit4TestCase()
+			addGrailsTestMixins()
+			initGrailsTestMixins()
+        } catch (Exception ex) {
+            log.error("failed to initialize test case, controller does not exist", ex);
+        }
     }
 
+	private void addGrailsTestMixins() {
+		mixins.each{mixin ->
+			testCase.getClass().mixin(mixin)
+		}
+    }
+	
+	private void initGrailsTestMixins() {
+		testCase.initGrailsApplication()
+		testCase.initializeDatastoreImplementation()
+		testCase.configureGrailsWeb()
+	}
+	
+	protected void afterBehavior() {
+		this.testCase.cleanupGrailsWeb()
+		testCase.shutdownApplicationContext()
+	}
+	
+	@Override
+	public void beforeEachStep() {
+		testCase.connectDatastore()
+		testCase.bindGrailsWebRequest()
+	}
+	
+	@Override
+	public void afterEachStep() {
+		testCase.shutdownDatastoreImplementation()
+		testCase.resetGrailsApplication()
+		
+		if (testCase && binding) {
+			binding.setVariable("controller", null)
+		}
+	}
+	
     public void injectMethods(Binding binding) {
         super.injectMethods(binding)
-        //println "second level inject"
-
-        if (ApplicationHolder.application) {
-            binding.inject = {beanName ->
-                // time to get *really* meta
-                binding."${beanName}" = ApplicationHolder.application.mainContext.getBean(beanName)
-            }
+		
+		binding.mockController = {Class clazz ->
+			def mockController = testCase.mockController(clazz)
+			binding.setVariable("controller", mockController)
+			mockController
         }
+		
+        binding.inject = {beanName ->
+			binding."${beanName}" = getAppCxt().getBean(beanName)
+		}
 
         binding.registerMetaClass = {Class clazz ->
             if (testCase) {
@@ -57,7 +103,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 
         binding.mockDomain = {Class domainClass, List instances = [] ->
             if (testCase) {
-                testCase.mockDomain(domainClass, instances)
+				testCase.mockDomain(domainClass, instances)
             } else {
                 throw new RuntimeException("no test case associated with story/scenario")
             }
@@ -71,14 +117,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
-        binding.mockController = {Class controllerClass ->
-            if (testCase) {
-                testCase.mockController(controllerClass)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
         binding.mockTagLib = {Class tagLibClass ->
             if (testCase) {
                 testCase.mockTagLib(tagLibClass)
@@ -87,6 +125,10 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
+		binding.applyTemplate = {String contents, Map model = [:] -> 
+			testCase.applyTemplate(contents, model)
+		}
+		
         binding.mockLogging = {Class clazz, boolean enableDebug = false ->
             if (testCase) {
                 testCase.mockLogging(clazz, enableDebug)

@@ -46,19 +46,19 @@ public class GrailsEasybListener extends ResultsCollector {
         eventPublisher.testCaseStart(trucateEventName(behavior.phrase))
 
         currentBehaviour = behavior
+		
         testRunner = InjectTestRunnerFactory.findMatchingRunner(currentBehaviour, grailsEasybTestType)
-
         if(! testRunner) {
             testRunner = InjectTestRunnerFactory.getDefault(currentBehaviour, grailsEasybTestType)
         }
 
         if(testRunner) {
-            testRunner.initialize()
+            testRunner.beforeBehavior()
 
             if (testRunner.testCase == null) {
                 log.warn "Unable to create expected test runner ${testRunner.runnerType}, using default instead"
                 testRunner = InjectTestRunnerFactory.getDefault(currentBehaviour, grailsEasybTestType)
-                testRunner?.initialize()
+                testRunner?.beforeBehavior()
             }
         }
     }
@@ -70,7 +70,8 @@ public class GrailsEasybListener extends ResultsCollector {
     @Override
     public void stopBehavior(BehaviorStep behaviorStep, Behavior behavior) {
         super.stopBehavior(behaviorStep, behavior)
-
+		testRunner.afterBehavior()
+		//TODO do some tearDown here. like destroying the new Grails 2 Mixin stuff
         eventPublisher.testCaseEnd(trucateEventName(behavior.phrase))
 
         currentBehaviour = null
@@ -100,7 +101,7 @@ public class GrailsEasybListener extends ResultsCollector {
                 break
             case BehaviorStepType.IT:
             case BehaviorStepType.SCENARIO:
-                testRunner?.setUp()
+                testRunner?.beforeEachStep()
                 break
         }
     }
@@ -114,7 +115,7 @@ public class GrailsEasybListener extends ResultsCollector {
         switch(step.getStepType()) {
             case BehaviorStepType.IT:
             case BehaviorStepType.SCENARIO:
-                testRunner?.tearDown()
+                testRunner?.afterEachStep()
                 break
         }
     }
@@ -172,12 +173,12 @@ public class GrailsEasybListener extends ResultsCollector {
         testRunner = InjectTestRunnerFactory.findDynamicRunner(style, name, currentBehaviour, grailsEasybTestType)
 
         if(testRunner) {
-            testRunner.initialize()
+            testRunner.beforeBehavior()
             testRunner.injectMethods(currentBehaviour.binding)
 
             // we have missed the start of the scenario or specification as well, so we need to inject the setup
             if(currentStep.stepType == BehaviorStepType.IT || currentStep.stepType == BehaviorStepType.SCENARIO) {
-                testRunner.setUp()
+                testRunner.beforeEachStep()
             }
         }
     }

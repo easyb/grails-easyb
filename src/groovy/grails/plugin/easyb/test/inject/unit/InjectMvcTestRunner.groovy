@@ -34,7 +34,7 @@ public class InjectMvcTestRunner extends InjectGrailsTestRunner {
 //    }
     }
 
-    protected void initialize() {
+    protected void beforeBehavior() {
 //    println "init: mvc test case ${fullPathClassName}"
         throw new RuntimeException("Can't use MvcClass directly")
     }
