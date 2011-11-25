@@ -8,13 +8,14 @@ package grails.plugin.easyb.test.inject.unit
 import grails.plugin.easyb.test.inject.InjectTestRunner
 import grails.plugin.easyb.test.inject.integration.JUnit4TestCase
 import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.web.ControllerUnitTestMixin;
-import grails.test.mixin.web.GroovyPageUnitTestMixin;
+import grails.test.mixin.web.ControllerUnitTestMixin
+import grails.test.mixin.web.GroovyPageUnitTestMixin
+import grails.test.mixin.web.UrlMappingsUnitTestMixin
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
 
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
-		GroovyPageUnitTestMixin]
+		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin]
 	
     protected void beforeBehavior() {
         runnerType = "Grails Unit Test"
@@ -40,7 +41,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	}
 	
 	protected void afterBehavior() {
-		this.testCase.cleanupGrailsWeb()
+		testCase.cleanupGrailsWeb()
 		testCase.shutdownApplicationContext()
 	}
 	
@@ -53,6 +54,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	@Override
 	public void afterEachStep() {
 		testCase.shutdownDatastoreImplementation()
+		testCase.clearGrailsWebRequest()
 		testCase.resetGrailsApplication()
 		
 		if (testCase && binding) {
@@ -109,6 +111,14 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
+		binding.mockUrlMappings = {Class urlMappingClass ->
+			testCase.mockUrlMappings(urlMappingClass)
+        }
+		
+		binding.mapURI = {String uri ->
+			testCase.mapURI(uri)
+		}
+		
         binding.enableCascadingValidation = {->
             if (testCase) {
                 testCase.enableCascadingValidation()
