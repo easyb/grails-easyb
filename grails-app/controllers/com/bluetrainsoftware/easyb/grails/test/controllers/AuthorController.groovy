@@ -22,4 +22,21 @@ public class AuthorController {
 	def useAServiceCall() {
 		authorService
 	}
+	
+	def handleCommand(AuthorCommand authorCommand) {
+		if (authorCommand.hasErrors()) {
+			render "Bad"
+		}
+		else {
+			render "Good"
+		}
+	}
+}
+
+class AuthorCommand {
+	String name
+
+	static constraints = {
+		name(blank: false, minSize: 6)
+	}
 }

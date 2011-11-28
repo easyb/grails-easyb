@@ -59,17 +59,19 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		
 		if (testCase && binding) {
 			binding.setVariable("controller", null)
+			binding.setVariable("request", null)
+			binding.setVariable("response", null)
+			binding.setVariable("webRequest", null)
+			binding.setVariable("params", null)
+			binding.setVariable("session", null)
+			binding.setVariable("model", null)
+			binding.setVariable("flash", null)
+			binding.setVariable("views", null)
 		}
 	}
 	
     public void injectMethods(Binding binding) {
         super.injectMethods(binding)
-		
-		binding.mockController = {Class clazz ->
-			def mockController = testCase.mockController(clazz)
-			binding.setVariable("controller", mockController)
-			mockController
-        }
 		
         binding.inject = {beanName ->
 			binding."${beanName}" = getAppCxt().getBean(beanName)
@@ -83,6 +85,10 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
+		controllerBindings(binding)
+		urlmappingsBindings(binding)
+		tagLibBindings(binding)
+		
         binding.mockFor = {Class clazz, boolean loose = false ->
             if (testCase) {
                 return testCase.mockFor(clazz, loose)
@@ -111,14 +117,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
-		binding.mockUrlMappings = {Class urlMappingClass ->
-			testCase.mockUrlMappings(urlMappingClass)
-        }
-		
-		binding.mapURI = {String uri ->
-			testCase.mapURI(uri)
-		}
-		
         binding.enableCascadingValidation = {->
             if (testCase) {
                 testCase.enableCascadingValidation()
@@ -127,18 +125,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
-        binding.mockTagLib = {Class tagLibClass ->
-            if (testCase) {
-                testCase.mockTagLib(tagLibClass)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-		binding.applyTemplate = {String contents, Map model = [:] -> 
-			testCase.applyTemplate(contents, model)
-		}
-		
         binding.mockLogging = {Class clazz, boolean enableDebug = false ->
             if (testCase) {
                 testCase.mockLogging(clazz, enableDebug)
@@ -171,4 +157,48 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
     }
+	
+	private controllerBindings(def binding) {
+		binding.mockController = {Class clazz ->
+			def mockController = testCase.mockController(clazz)
+			binding.setVariable("controller", mockController)
+			binding.setVariable("request", testCase.request)
+			binding.setVariable("response", testCase.response)
+			binding.setVariable("webRequest", testCase.webRequest)
+			binding.setVariable("params", testCase.params)
+			binding.setVariable("session", testCase.session)
+			binding.setVariable("model", testCase.model)
+			binding.setVariable("flash", testCase.flash)
+			binding.setVariable("views", testCase.views)
+			mockController
+		}
+		
+		binding.mockCommandObject = {Class clazz ->
+			testCase.mockCommandObject(clazz)
+		}
+	}
+	
+	private urlmappingsBindings(def binding) {
+		binding.mockUrlMappings = {Class urlMappingClass ->
+			testCase.mockUrlMappings(urlMappingClass)
+		}
+		
+		binding.mapURI = {String uri ->
+			testCase.mapURI(uri)
+		}
+	}
+	
+	private tagLibBindings(def binding) {
+		binding.mockTagLib = {Class tagLibClass ->
+			if (testCase) {
+				testCase.mockTagLib(tagLibClass)
+			} else {
+				throw new RuntimeException("no test case associated with story/scenario")
+			}
+		}
+
+		binding.applyTemplate = {String contents, Map model = [:] ->
+			testCase.applyTemplate(contents, model)
+		}
+	}
 }
