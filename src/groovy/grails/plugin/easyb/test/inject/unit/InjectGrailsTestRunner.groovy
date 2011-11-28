@@ -16,7 +16,9 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
 		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin]
-	
+
+	private List controllerUnitVariables = ['request', 'response', 'webRequest',
+											'params', 'session', 'model', 'flash', 'views']
     protected void beforeBehavior() {
         runnerType = "Grails Unit Test"
         try {
@@ -162,14 +164,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		binding.mockController = {Class clazz ->
 			def mockController = testCase.mockController(clazz)
 			binding.setVariable("controller", mockController)
-			binding.setVariable("request", testCase.request)
-			binding.setVariable("response", testCase.response)
-			binding.setVariable("webRequest", testCase.webRequest)
-			binding.setVariable("params", testCase.params)
-			binding.setVariable("session", testCase.session)
-			binding.setVariable("model", testCase.model)
-			binding.setVariable("flash", testCase.flash)
-			binding.setVariable("views", testCase.views)
+			bindControllerUnitVariables(binding)
 			mockController
 		}
 		
@@ -199,6 +194,17 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 
 		binding.applyTemplate = {String contents, Map model = [:] ->
 			testCase.applyTemplate(contents, model)
+		}
+		
+		binding.render = {Map args ->
+			bindControllerUnitVariables(binding)
+			testCase.render(args)
+		}
+	}
+	
+	private bindControllerUnitVariables(Binding binding) {
+		controllerUnitVariables.each{variable ->
+			if(!binding.getVariable(variable)) binding.setVariable(variable, testCase."$variable")
 		}
 	}
 }
