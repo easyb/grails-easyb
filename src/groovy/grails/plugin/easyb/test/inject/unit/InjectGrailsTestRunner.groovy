@@ -8,6 +8,7 @@ package grails.plugin.easyb.test.inject.unit
 import grails.plugin.easyb.test.inject.InjectTestRunner
 import grails.plugin.easyb.test.inject.integration.JUnit4TestCase
 import grails.test.mixin.domain.DomainClassUnitTestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.test.mixin.web.GroovyPageUnitTestMixin
 import grails.test.mixin.web.UrlMappingsUnitTestMixin
@@ -15,7 +16,7 @@ import grails.test.mixin.web.UrlMappingsUnitTestMixin
 public class InjectGrailsTestRunner extends InjectTestRunner {
 
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
-		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin]
+		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin, GrailsUnitTestMixin]
 
 	private List controllerUnitVariables = ['request', 'response', 'webRequest',
 											'params', 'session', 'model', 'flash', 'views']
@@ -24,51 +25,46 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
         try {
 			testCase = new JUnit4TestCase()
 			addGrailsTestMixins()
-			initGrailsTestMixins()
+			runJUnitAnnotatedMethods(org.junit.BeforeClass)
         } catch (Exception ex) {
             log.error("failed to initialize test case, controller does not exist", ex);
         }
     }
 
 	private void addGrailsTestMixins() {
-		mixins.each{mixin ->
-			testCase.getClass().mixin(mixin)
-		}
+		JUnit4TestCase.metaClass.mixin mixins
     }
 	
-	private void initGrailsTestMixins() {
-		testCase.initGrailsApplication()
-		testCase.initializeDatastoreImplementation()
-		testCase.configureGrailsWeb()
-	}
-	
 	protected void afterBehavior() {
-		testCase.cleanupGrailsWeb()
-		testCase.shutdownApplicationContext()
+		runJUnitAnnotatedMethods(org.junit.AfterClass)
 	}
 	
 	@Override
 	public void beforeEachStep() {
-		testCase.connectDatastore()
-		testCase.bindGrailsWebRequest()
+		runJUnitAnnotatedMethods(org.junit.Before)
 	}
 	
 	@Override
 	public void afterEachStep() {
-		testCase.shutdownDatastoreImplementation()
-		testCase.clearGrailsWebRequest()
-		testCase.resetGrailsApplication()
+		runJUnitAnnotatedMethods(org.junit.After)
 		
 		if (testCase && binding) {
 			binding.setVariable("controller", null)
-			binding.setVariable("request", null)
-			binding.setVariable("response", null)
-			binding.setVariable("webRequest", null)
-			binding.setVariable("params", null)
-			binding.setVariable("session", null)
-			binding.setVariable("model", null)
-			binding.setVariable("flash", null)
-			binding.setVariable("views", null)
+			unbindControllerUnitVariables(binding)
+		}
+	}
+	
+	private runJUnitAnnotatedMethods(def jUnitAnnotation) {
+		def methods = []
+		mixins.each{mixin ->
+			mixin.getDeclaredMethods().each{method ->
+				if(method.getAnnotation(jUnitAnnotation)){
+					 methods << method.getName()
+				}
+			}
+		}
+		methods.each{method ->
+			testCase."$method"()
 		}
 	}
 	
@@ -197,7 +193,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		}
 		
 		binding.render = {Map args ->
-			bindControllerUnitVariables(binding)
 			testCase.render(args)
 		}
 	}
@@ -205,6 +200,12 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	private bindControllerUnitVariables(Binding binding) {
 		controllerUnitVariables.each{variable ->
 			if(!binding.getVariable(variable)) binding.setVariable(variable, testCase."$variable")
+		}
+	}
+	
+	private unbindControllerUnitVariables(Binding binding) {
+		controllerUnitVariables.each{variable ->
+			binding.setVariable(variable, null)
 		}
 	}
 }
