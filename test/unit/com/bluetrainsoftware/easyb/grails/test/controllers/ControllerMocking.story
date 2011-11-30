@@ -42,7 +42,7 @@ scenario "We should be able to mock the controller with mockController closure",
 	}
 }
 
-scenario "grails test framework convenience methods are accessible", {
+scenario "grails test framework convenience properties are accessible", {
 	given "a mocked controller",{
 		mockController AuthorController
 		mockDomain Author

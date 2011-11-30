@@ -6,33 +6,29 @@ package grails.plugin.easyb.test.inject.unit
  */
 
 import grails.plugin.easyb.test.inject.InjectTestRunner
-import grails.plugin.easyb.test.inject.integration.JUnit4TestCase
 import grails.test.mixin.domain.DomainClassUnitTestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
+import grails.test.mixin.web.FiltersUnitTestMixin;
 import grails.test.mixin.web.GroovyPageUnitTestMixin
 import grails.test.mixin.web.UrlMappingsUnitTestMixin
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
 
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
-		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin, GrailsUnitTestMixin]
+		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin, GrailsUnitTestMixin, FiltersUnitTestMixin]
 
-	private List controllerUnitVariables = ['request', 'response', 'webRequest',
-											'params', 'session', 'model', 'flash', 'views']
+	private Set controllerUnitVariables = ['request', 'response', 'webRequest',
+											'params', 'session', 'model', 'flash', 'views'] as SortedSet
     protected void beforeBehavior() {
         runnerType = "Grails Unit Test"
-        try {
-			testCase = new JUnit4TestCase()
-			addGrailsTestMixins()
-			runJUnitAnnotatedMethods(org.junit.BeforeClass)
-        } catch (Exception ex) {
-            log.error("failed to initialize test case, controller does not exist", ex);
-        }
+		testCase = new Object()
+		addGrailsTestMixins()
+		runJUnitAnnotatedMethods(org.junit.BeforeClass)
     }
 
 	private void addGrailsTestMixins() {
-		JUnit4TestCase.metaClass.mixin mixins
+		testCase.metaClass.mixin mixins
     }
 	
 	protected void afterBehavior() {
@@ -86,7 +82,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		controllerBindings(binding)
 		urlmappingsBindings(binding)
 		tagLibBindings(binding)
-		
+		filtersBindings(binding)
         binding.mockFor = {Class clazz, boolean loose = false ->
             if (testCase) {
                 return testCase.mockFor(clazz, loose)
@@ -189,7 +185,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		}
 
 		binding.applyTemplate = {String contents, Map model = [:] ->
-			testCase.applyTemplate(contents, model)
+			testCase.applyTemplate(contents, model) 	
 		}
 		
 		binding.render = {Map args ->
@@ -197,9 +193,20 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		}
 	}
 	
+	
+	private filtersBindings(def binding) {
+		binding.mockFilters = {Class clazz ->
+			testCase.mockFilters(clazz)
+		}
+		
+		binding.withFilters = {Map arguments, Closure callable ->
+			testCase.withFilters(arguments, callable)
+		}
+	}
+	
 	private bindControllerUnitVariables(Binding binding) {
 		controllerUnitVariables.each{variable ->
-			if(!binding.getVariable(variable)) binding.setVariable(variable, testCase."$variable")
+				binding.setVariable(variable, testCase."$variable")
 		}
 	}
 	

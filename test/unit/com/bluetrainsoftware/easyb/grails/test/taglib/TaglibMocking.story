@@ -1,4 +1,4 @@
-package com.bluetrainsoftware.easyb.test.taglib
+package com.bluetrainsoftware.easyb.grails.test.taglib
 
 import grails.easyb.plugin.test.taglib.SimpleTagLib
 
