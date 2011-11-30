@@ -1,0 +1,15 @@
+package com.bluetrainsoftware.easyb.grails.test.service;
+
+import com.bluetrainsoftware.easyb.grails.test.service.AuthorService
+
+it "should allow us to use mocking", {
+	def authorService = mockService(AuthorService)
+	result = authorService.doSomething(1)
+	result.shouldBe "burp"
+}
+
+it "should not allow us to inject services", {
+	ensureThrows(java.lang.IllegalStateException) {
+	  inject "authorService"
+	}
+}

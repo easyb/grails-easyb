@@ -1,5 +1,6 @@
 package com.bluetrainsoftware.easyb.grails.test.service;
 
+import com.bluetrainsoftware.easyb.grails.test.domain.Author
 import com.bluetrainsoftware.easyb.grails.test.domain.Book
 
 /**
@@ -10,8 +11,13 @@ public class AuthorService {
 		return "burp";
 	}
 	
-	public Book allBooksByMe(String who) {
-		return null;
+	def allBooksByMe(String who) {
+		//Ugly, but who cares
+		def books = []
+		Book.list().each{book ->
+			if(book.authors.find{author -> author.name == who}) books << book
+		}
+		return books
 	}
 	
 	def listAllBooks() {

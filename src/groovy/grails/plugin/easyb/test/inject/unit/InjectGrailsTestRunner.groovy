@@ -7,6 +7,7 @@ package grails.plugin.easyb.test.inject.unit
 
 import grails.plugin.easyb.test.inject.InjectTestRunner
 import grails.test.mixin.domain.DomainClassUnitTestMixin
+import grails.test.mixin.services.ServiceUnitTestMixin;
 import grails.test.mixin.support.GrailsUnitTestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.test.mixin.web.FiltersUnitTestMixin;
@@ -16,7 +17,7 @@ import grails.test.mixin.web.UrlMappingsUnitTestMixin
 public class InjectGrailsTestRunner extends InjectTestRunner {
 
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
-		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin, GrailsUnitTestMixin, FiltersUnitTestMixin]
+		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin, GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin]
 
 	private Set controllerUnitVariables = ['request', 'response', 'webRequest',
 											'params', 'session', 'model', 'flash', 'views'] as SortedSet
@@ -79,33 +80,16 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
             }
         }
 
+		domainBindings(binding)
 		controllerBindings(binding)
+		serviceBindings(binding)
 		urlmappingsBindings(binding)
 		tagLibBindings(binding)
 		filtersBindings(binding)
+		
         binding.mockFor = {Class clazz, boolean loose = false ->
             if (testCase) {
                 return testCase.mockFor(clazz, loose)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-        binding.mockForConstraintsTests = {Class clazz, instance = [] ->
-            if (testCase) {
-                if(instance instanceof List) {
-                    testCase.mockForConstraintsTests(clazz, [instance])
-                } else {
-                    testCase.mockForConstraintsTests(clazz, instance)
-                }
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-        binding.mockDomain = {Class domainClass, List instances = [] ->
-            if (testCase) {
-				testCase.mockDomain(domainClass, instances)
             } else {
                 throw new RuntimeException("no test case associated with story/scenario")
             }
@@ -152,6 +136,28 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
         }
     }
 	
+	private domainBindings(def binding) {
+		binding.mockDomain = {Class domainClass, List instances = [] ->
+			if (testCase) {
+				testCase.mockDomain(domainClass, instances)
+			} else {
+				throw new RuntimeException("no test case associated with story/scenario")
+			}
+		}
+		
+		binding.mockForConstraintsTests = {Class clazz, instance = [] ->
+			if (testCase) {
+				if(instance instanceof List) {
+					testCase.mockForConstraintsTests(clazz, [instance])
+				} else {
+					testCase.mockForConstraintsTests(clazz, instance)
+				}
+			} else {
+				throw new RuntimeException("no test case associated with story/scenario")
+			}
+		}
+	}
+	
 	private controllerBindings(def binding) {
 		binding.mockController = {Class clazz ->
 			def mockController = testCase.mockController(clazz)
@@ -163,6 +169,12 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		binding.mockCommandObject = {Class clazz ->
 			testCase.mockCommandObject(clazz)
 		}
+	}
+	
+	private serviceBindings(def binding) {
+		binding.mockService = {Class clazz ->
+			testCase.mockService(clazz)
+		}	
 	}
 	
 	private urlmappingsBindings(def binding) {
