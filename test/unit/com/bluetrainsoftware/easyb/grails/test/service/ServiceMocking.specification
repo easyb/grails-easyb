@@ -1,6 +1,5 @@
 package com.bluetrainsoftware.easyb.grails.test.service;
 
-import com.bluetrainsoftware.easyb.grails.test.service.AuthorService
 
 it "should allow us to use mocking", {
 	def authorService = mockService(AuthorService)

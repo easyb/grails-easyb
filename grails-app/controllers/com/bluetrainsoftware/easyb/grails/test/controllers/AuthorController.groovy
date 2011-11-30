@@ -31,6 +31,10 @@ public class AuthorController {
 			render "Good"
 		}
 	}
+	
+	def justAVoidAction() {
+		
+	}
 }
 
 class AuthorCommand {
