@@ -1,13 +1,13 @@
 package com.bluetrainsoftware.easyb.grails.test.taglib
 
 import grails.easyb.plugin.test.taglib.SimpleTagLib
+import grails.test.mixin.web.GroovyPageUnitTestMixin
 
 import com.bluetrainsoftware.easyb.grails.test.domain.Author
 
 description """
 This story makes sure that it is possible to mock taglibs and uses the render method
 that is available on the mixin GroovyPageUnitTestMixin"""
-
 
 scenario "a taglib is mocked and verified by applying a template",{
 	given "a mocked tagLib",{ mockTagLib(SimpleTagLib) }

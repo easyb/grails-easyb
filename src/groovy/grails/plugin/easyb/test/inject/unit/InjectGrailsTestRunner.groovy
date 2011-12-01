@@ -6,6 +6,7 @@ package grails.plugin.easyb.test.inject.unit
  */
 
 import grails.plugin.easyb.test.inject.InjectTestRunner
+import grails.test.ControllerUnitTestCase;
 import grails.test.mixin.domain.DomainClassUnitTestMixin
 import grails.test.mixin.services.ServiceUnitTestMixin;
 import grails.test.mixin.support.GrailsUnitTestMixin
@@ -13,23 +14,30 @@ import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.test.mixin.web.FiltersUnitTestMixin;
 import grails.test.mixin.web.GroovyPageUnitTestMixin
 import grails.test.mixin.web.UrlMappingsUnitTestMixin
+import grails.test.mixin.webflow.WebFlowUnitTestMixin;
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
-
-	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin,
-		GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin, GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin]
-
+	
 	private Set controllerUnitVariables = ['request', 'response', 'webRequest',
 											'params', 'session', 'model', 'flash', 'views'] as SortedSet
     protected void beforeBehavior() {
         runnerType = "Grails Unit Test"
 		testCase = new Object()
-		addGrailsTestMixins()
-		runJUnitAnnotatedMethods(org.junit.BeforeClass)
+        addGrailsTestMixins()
+        runJUnitAnnotatedMethods(org.junit.BeforeClass)
     }
 
 	private void addGrailsTestMixins() {
-		testCase.metaClass.mixin mixins
+		testCase.metaClass{
+			mixin ControllerUnitTestMixin, DomainClassUnitTestMixin, GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin,
+					GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin
+			mockController = {Class clazz ->
+				mixedIn[ControllerUnitTestMixin].mockController(clazz)
+			}
+			mockControllerWithWebFlow = {Class clazz ->
+				mixedIn[WebFlowUnitTestMixin].mockController(clazz)
+			}
+		}
     }
 	
 	protected void afterBehavior() {
@@ -94,46 +102,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
                 throw new RuntimeException("no test case associated with story/scenario")
             }
         }
-
-        binding.enableCascadingValidation = {->
-            if (testCase) {
-                testCase.enableCascadingValidation()
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-        binding.mockLogging = {Class clazz, boolean enableDebug = false ->
-            if (testCase) {
-                testCase.mockLogging(clazz, enableDebug)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-        binding.mockConfig = {String config ->
-            if (testCase) {
-                testCase.mockConfig(config)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-        binding.loadCodec = {Class codecClass ->
-            if (testCase) {
-                testCase.loadCodec(codecClass)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
-
-        binding.addConverters = {Class clazz ->
-            if (testCase) {
-                testCase.addConverters(clazz)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
     }
 	
 	private domainBindings(def binding) {
@@ -161,6 +129,19 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	private controllerBindings(def binding) {
 		binding.mockController = {Class clazz ->
 			def mockController = testCase.mockController(clazz)
+			binding.setVariable("controller", mockController)
+			bindControllerUnitVariables(binding)
+			mockController
+		}
+		
+		binding.mockCommandObject = {Class clazz ->
+			testCase.mockCommandObject(clazz)
+		}
+	}
+	
+	private webFlowBindings(def binding) {
+		binding.mockControllerWithWebFlow = {Class clazz ->
+			def mockController = testCase.mockControllerWithWebFlow(clazz)
 			binding.setVariable("controller", mockController)
 			bindControllerUnitVariables(binding)
 			mockController

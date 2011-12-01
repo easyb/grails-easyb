@@ -71,7 +71,6 @@ public class GrailsEasybListener extends ResultsCollector {
     public void stopBehavior(BehaviorStep behaviorStep, Behavior behavior) {
         super.stopBehavior(behaviorStep, behavior)
 		testRunner.afterBehavior()
-		//TODO do some tearDown here. like destroying the new Grails 2 Mixin stuff
         eventPublisher.testCaseEnd(trucateEventName(behavior.phrase))
 
         currentBehaviour = null
