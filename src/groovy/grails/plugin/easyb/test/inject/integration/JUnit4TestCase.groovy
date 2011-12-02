@@ -16,7 +16,6 @@ class JUnit4TestCase {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		println "This is setup before class being called"
 	}
 
 	@AfterClass
@@ -25,7 +24,6 @@ class JUnit4TestCase {
 
 	@Before
 	public void setUp() throws Exception {
-		println "This is setup being called"
 	}
 
 	@After
