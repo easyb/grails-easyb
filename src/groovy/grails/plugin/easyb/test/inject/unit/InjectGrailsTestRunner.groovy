@@ -18,6 +18,8 @@ import grails.test.mixin.webflow.WebFlowUnitTestMixin;
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
 	
+	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin, GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin,
+					GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin, WebFlowUnitTestMixin]
 	private Set controllerUnitVariables = ['request', 'response', 'webRequest',
 											'params', 'session', 'model', 'flash', 'views'] as SortedSet
     protected void beforeBehavior() {
@@ -28,9 +30,8 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
     }
 
 	private void addGrailsTestMixins() {
+		testCase.metaClass.mixin mixins
 		testCase.metaClass{
-			mixin ControllerUnitTestMixin, DomainClassUnitTestMixin, GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin,
-					GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin
 			mockController = {Class clazz ->
 				mixedIn[ControllerUnitTestMixin].mockController(clazz)
 			}
@@ -60,16 +61,12 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	}
 	
 	private runJUnitAnnotatedMethods(def jUnitAnnotation) {
-		def methods = []
 		mixins.each{mixin ->
 			mixin.getDeclaredMethods().each{method ->
 				if(method.getAnnotation(jUnitAnnotation)){
-					 methods << method.getName()
+					testCase."${method.getName()}"()
 				}
 			}
-		}
-		methods.each{method ->
-			testCase."$method"()
 		}
 	}
 	
@@ -94,14 +91,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		urlmappingsBindings(binding)
 		tagLibBindings(binding)
 		filtersBindings(binding)
-		
-        binding.mockFor = {Class clazz, boolean loose = false ->
-            if (testCase) {
-                return testCase.mockFor(clazz, loose)
-            } else {
-                throw new RuntimeException("no test case associated with story/scenario")
-            }
-        }
+		supportBindings(binding)
     }
 	
 	private domainBindings(def binding) {
@@ -196,7 +186,21 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 			testCase.withFilters(arguments, callable)
 		}
 	}
-	
+
+	private supportBindings(def binding) {
+		binding.mockFor = {Class clazz, boolean loose = false ->
+			if (testCase) {
+				return testCase.mockFor(clazz, loose)
+			} else {
+				throw new RuntimeException("no test case associated with story/scenario")
+			}
+		}
+		
+		binding.mockCodec = {Class clazz ->
+			testCase.mockCodec(clazz)
+		}
+	}
+		
 	private bindControllerUnitVariables(Binding binding) {
 		controllerUnitVariables.each{variable ->
 				binding.setVariable(variable, testCase."$variable")

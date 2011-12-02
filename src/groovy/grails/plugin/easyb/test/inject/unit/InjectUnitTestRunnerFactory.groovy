@@ -5,14 +5,11 @@
  */
 package grails.plugin.easyb.test.inject.unit
 
-import grails.plugin.easyb.test.inject.unit.InjectControllerTestRunner
-import grails.plugin.easyb.test.inject.unit.InjectGSPTestRunner
-import grails.plugin.easyb.test.inject.unit.InjectGrailsTestRunner
-import grails.plugin.easyb.test.inject.unit.InjectTaglibTestRunner
-import org.easyb.domain.Behavior
-import grails.plugin.easyb.test.inject.TestRunnerFactory
-import grails.plugin.easyb.test.GrailsEasybTestType
-import grails.plugin.easyb.test.inject.InjectTestRunner
+import grails.plugin.easyb.test.GrailsEasybTestType;
+import grails.plugin.easyb.test.inject.InjectTestRunner;
+import grails.plugin.easyb.test.inject.TestRunnerFactory;
+
+import org.easyb.domain.Behavior;
 
 public class InjectUnitTestRunnerFactory implements TestRunnerFactory {
     private static String pathPartMustExist = "test" + File.separator + "unit"
