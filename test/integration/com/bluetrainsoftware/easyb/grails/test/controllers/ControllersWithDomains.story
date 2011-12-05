@@ -2,8 +2,8 @@ package com.bluetrainsoftware.easyb.grails.test.controllers;
 
 before "setup controller",{
 	
-	given "an AuthorController", {
-		controller 'AuthorController'
+	given "an AuthorController is setup to be used in the story", {
+		controller 'com.bluetrainsoftware.easyb.grails.test.controllers.AuthorController'
 	}
 }
 
@@ -65,5 +65,16 @@ scenario "making sure that the params work", {
 	then "we should have an author", {
 		author.shouldNotBe null
 		author.name.shouldBe 'Terry'
+	}
+}
+
+scenario "reset controller variable to non existing controller", {
+	given "we use a non existing controller", {
+		controller 'IsNotAController'
+	}
+	then "it blows up", {
+		ensureThrows(org.codehaus.groovy.runtime.InvokerInvocationException) {
+			controller.list()
+		}
 	}
 }
