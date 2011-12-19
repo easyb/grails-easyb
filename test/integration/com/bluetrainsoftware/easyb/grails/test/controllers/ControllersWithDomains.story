@@ -7,7 +7,7 @@ before "setup controller",{
 	}
 }
 
-scenario "controller injected due to existance of controller closure", {
+scenario "controller injected", {
 	AuthorController controller = new AuthorController()
 	def authors
 	given "a domain of authors", {

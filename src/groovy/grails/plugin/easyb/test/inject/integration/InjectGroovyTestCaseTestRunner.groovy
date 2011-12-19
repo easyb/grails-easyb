@@ -11,10 +11,13 @@ import org.springframework.context.ApplicationContext
 class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 	GrailsTestTransactionInterceptor transactionInterceptor
 	GrailsTestRequestEnvironmentInterceptor requestEnvironmentInterceptor
-	
+	String controllerClassName
 	protected void beforeBehavior() {
 		runnerType = "Groovy Test Case"
 		this.testCase = new JUnit4TestCase()
+		if(controllerClassName != null && controllerClassName != '') {
+			this.testCase.metaClass.controller = controllerClassName
+		}
 		this.transactionInterceptor = new GrailsTestTransactionInterceptor(getAppCxt())
 		this.requestEnvironmentInterceptor = new GrailsTestRequestEnvironmentInterceptor(getAppCxt())
 	}

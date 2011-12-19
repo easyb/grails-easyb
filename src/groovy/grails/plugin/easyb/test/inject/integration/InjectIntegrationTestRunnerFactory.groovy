@@ -17,14 +17,28 @@ public class InjectIntegrationTestRunnerFactory implements TestRunnerFactory {
 
 	@Override
 	InjectTestRunner findMatchingRunner(String expectedMatchingGrailsClass, Behavior currentBehaviour, GrailsEasybTestType gett) {
+		return detectRunner(expectedMatchingGrailsClass, gett)
 	}
 
 	@Override
 	InjectTestRunner findDynamicRunner(String style, String name, String expectedMatchingGrailsClass, Behavior currentBehavior, GrailsEasybTestType gett) {
+		println "style: $style, name: $name"
+		
 	}
 
 	@Override
 	InjectTestRunner getDefaultTestRunner(GrailsEasybTestType gett) {
 		return new InjectGroovyTestCaseTestRunner(grailsEasybTestType: gett)
+	}
+	
+	private def detectRunner(String className, GrailsEasybTestType gett) {
+		if(className.endsWith("Controller")) {
+			return new InjectGroovyTestCaseTestRunner(grailsEasybTestType: gett, controllerClassName: className)
+		} else if(className.endsWith("ControllerStory")) {
+			return new InjectGroovyTestCaseTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Story")))
+		} else if(className.endsWith("ControllerSpecification")) {
+			return new InjectGroovyTestCaseTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Specification")))
+		}
+		return null
 	}
 }
