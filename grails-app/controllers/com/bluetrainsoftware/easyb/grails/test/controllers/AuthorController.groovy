@@ -20,7 +20,7 @@ public class AuthorController {
 	}
 	
 	def useAServiceCall() {
-		authorService
+		authorService.allBooksByMe("who")
 	}
 	
 	def handleCommand(AuthorCommand authorCommand) {

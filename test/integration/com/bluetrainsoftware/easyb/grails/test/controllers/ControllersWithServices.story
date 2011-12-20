@@ -1,11 +1,18 @@
 package com.bluetrainsoftware.easyb.grails.test.controllers
-scenario "",{
-	given "",{
+
+shared_behavior "AuthorController setup",{
+	given "an AuthorController is setup", {
+		controller 'com.bluetrainsoftware.easyb.grails.test.controllers.AuthorController'
 	}
-	
-	when "", {
+}
+
+scenario "making sure that services are callable through controllers",{
+	AuthorController controller
+	it_behaves_as "AuthorController setup"
+	given "a controller", {
+		controller = new AuthorController()
 	}
-	
-	then "", {
+	when "calling a method that delegates to a service ", {
+		println controller.useAServiceCall()
 	}
 }

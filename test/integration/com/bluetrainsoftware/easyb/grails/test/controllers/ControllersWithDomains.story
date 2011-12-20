@@ -1,15 +1,15 @@
 package com.bluetrainsoftware.easyb.grails.test.controllers;
 
-before "setup controller",{
-	
-	given "an AuthorController is setup to be used in the story", {
+
+shared_behavior "AuthorController setup",{
+	given "an AuthorController is setup", {
 		controller 'com.bluetrainsoftware.easyb.grails.test.controllers.AuthorController'
 	}
 }
-
-scenario "controller injected", {
+scenario "controller is callable after being setup", {
 	AuthorController controller = new AuthorController()
 	def authors
+	it_behaves_as "AuthorController setup"
 	given "a domain of authors", {
 		new com.bluetrainsoftware.easyb.grails.test.domain.Author(name:'Terry').save(flush: true)
         new com.bluetrainsoftware.easyb.grails.test.domain.Author(name:'Ernest').save(flush: true)
@@ -33,6 +33,7 @@ scenario "controller injected", {
 scenario "making sure that the mocked render works", {
 	AuthorController controller = new AuthorController()
 	
+	it_behaves_as "AuthorController setup"
 	when "when we make a request of the controller", {
 		controller.somethingThatRenders()
 	}
@@ -44,6 +45,7 @@ scenario "making sure that the mocked render works", {
 scenario "making sure that the mocked redirect works", {
 	AuthorController controller = new AuthorController()
 	
+	it_behaves_as "AuthorController setup"
 	when "when we make a request of the controller", {
 		controller.somethingThatRedirects()
 	}
@@ -55,6 +57,8 @@ scenario "making sure that the mocked redirect works", {
 scenario "making sure that the params work", {
 	AuthorController controller = new AuthorController()
 	def author, domain
+	
+	it_behaves_as "AuthorController setup"
 	given "an author", {
 		domain = new com.bluetrainsoftware.easyb.grails.test.domain.Author(name:'Terry').save(flush: true)
 	}
@@ -69,6 +73,7 @@ scenario "making sure that the params work", {
 }
 
 scenario "reset controller variable to non existing controller", {
+	
 	given "we use a non existing controller", {
 		controller 'IsNotAController'
 	}
