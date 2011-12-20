@@ -2,6 +2,9 @@ package com.bluetrainsoftware.easyb.grails.test.controllers;
 
 import com.bluetrainsoftware.easyb.grails.test.domain.*;
 
+description """The standard semantics for Grails in integration test mode
+is to create MockkHttpServletRequest/Response by resolving the controller name from the test class name. Despite
+this you still have to instantiate a controller object yourself."""
 scenario "Controller mocking setup based on class package and name", {
 	def controller
     given "a mocked domain of authors", {
