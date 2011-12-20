@@ -23,6 +23,10 @@ public class AuthorController {
 		authorService.allBooksByMe("who")
 	}
 	
+	def echoReverse(String stringToReverse) {
+		authorService.echoReverse(stringToReverse)	
+	}
+	
 	def handleCommand(AuthorCommand authorCommand) {
 		if (authorCommand.hasErrors()) {
 			render "Bad"

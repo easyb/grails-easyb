@@ -23,4 +23,8 @@ public class AuthorService {
 	def listAllBooks() {
 		return Book.list()
 	}
+	
+	def echoReverse(String stringToReverse) {
+		return stringToReverse?.reverse()
+	}
 }

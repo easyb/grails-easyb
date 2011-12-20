@@ -12,7 +12,7 @@ scenario "making sure that services are callable through controllers",{
 	given "a controller", {
 		controller = new AuthorController()
 	}
-	when "calling a method that delegates to a service ", {
-		println controller.useAServiceCall()
+	then "calling a method that delegates to a service ", {
+		controller.echoReverse('Hello').shouldBe 'olleH'
 	}
 }
