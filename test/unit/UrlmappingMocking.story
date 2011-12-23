@@ -3,8 +3,9 @@ import com.bluetrainsoftware.easyb.grails.test.controllers.AuthorController
 import com.bluetrainsoftware.easyb.grails.test.domain.Author
 description """
 This story makes sure that it is possible to mock urlmappings
-through the mixin UrlMappingsUnitTestMixin"""
+through the mixin UrlMappingsUnitTestMixin."""
 
+//This test has to reside in the default package due to the UrlMappings class
 scenario "an urlmappings class is mocked",{
 	def urlMapping 
 	given "an mocked urlmapping",{

@@ -1,8 +1,8 @@
 import com.bluetrainsoftware.easyb.grails.test.controllers.AuthorController
 import com.bluetrainsoftware.easyb.grails.test.domain.Author
-description '''Filter should be possible to mock through the FilterUnitTestMixin
-//'''
+description '''Filter should be possible to mock through the FilterUnitTestMixin'''
 
+//This test has to reside in the default package due to that the CancellingFilter is in the default package.
 scenario "We should be able to mock filters and testing them with withFilters", {
 	given "a mocked controller", {
 		mockController(AuthorController)

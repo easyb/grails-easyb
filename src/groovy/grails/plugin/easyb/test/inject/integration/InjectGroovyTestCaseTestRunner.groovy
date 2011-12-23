@@ -1,5 +1,5 @@
 package grails.plugin.easyb.test.inject.integration
-import grails.plugin.easyb.test.GrailsEasybTestType;
+import grails.plugin.easyb.test.GrailsEasybTestType
 import grails.plugin.easyb.test.inject.InjectTestRunner
 import groovy.lang.Binding
 
@@ -16,18 +16,26 @@ class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 	
 	protected void beforeBehavior() {
 		runnerType = "Groovy Test Case"
-		this.testCase = new JUnit4TestCase()
-		if(controllerClassNameHasBeenPreset()) addControllerPropertyToTestCase()
+		createTestCaseAndAddProperties()
+		
+		if(controllerClassNameHasBeenPreset()) testCase.controller = controllerClassName
+		
 		transactionInterceptor = new GrailsTestTransactionInterceptor(getAppCxt())
 		requestEnvironmentInterceptor = new GrailsTestRequestEnvironmentInterceptor(getAppCxt())
 	}
 	
-	private boolean controllerClassNameHasBeenPreset() {
-		return isNotBlank(controllerClassName)
+	private void createTestCaseAndAddProperties() {
+		testCase = new Object()
+		
+		//Add some properties to the testCase
+		testCase.metaClass {
+			transactional = true
+			controller = null
+		}
 	}
 	
-	private void addControllerPropertyToTestCase() {
-		testCase.metaClass.controller = controllerClassName
+	private boolean controllerClassNameHasBeenPreset() {
+		return isNotBlank(controllerClassName)
 	}
 	
 	@Override
@@ -86,7 +94,7 @@ class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 		
 		binding.controller = {String controller ->
 			if (testCase) {
-				testCase.metaClass.controller = controller
+				testCase.controller = controller
 			} else {
 				throw new RuntimeException("no test case associated with story/scenario")
 			}
