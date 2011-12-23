@@ -13,9 +13,6 @@ import com.bluetrainsoftware.easyb.grails.test.domain.*
 // this won't pick up the controller automatically, mock it and stick it in
 
 
-before "everything", {
-	
-}
 scenario "Controller won't be automatically injected", {
     then "controller variable should be null", {
         ensureThrows(MissingPropertyException) {

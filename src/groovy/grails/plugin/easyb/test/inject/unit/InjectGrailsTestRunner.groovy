@@ -18,6 +18,7 @@ import grails.test.mixin.webflow.WebFlowUnitTestMixin;
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
 	
+	String controllerClassName
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin, GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin,
 					GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin, WebFlowUnitTestMixin]
 	private Set controllerUnitVariables = ['request', 'response', 'webRequest',
