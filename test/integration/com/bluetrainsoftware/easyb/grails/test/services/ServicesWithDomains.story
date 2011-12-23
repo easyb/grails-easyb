@@ -21,12 +21,3 @@ scenario "a domain object should be retrieveable through a service",{
 		authorService.listAllBooks().size().shouldBe 1
 	}
 }
-
-scenario "no scenario should depend on another scenario",{
-	given "nothing is created",{
-	}
-	
-	then "author service is called and no author is listed", {
-		authorService.listAllBooks().size().shouldBe 0
-	}
-}

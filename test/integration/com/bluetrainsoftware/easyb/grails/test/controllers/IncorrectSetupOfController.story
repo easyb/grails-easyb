@@ -22,7 +22,7 @@ scenario "controller variable is not sufficient anymore, you have to instantiate
 	when "we have an author", {
 		new Author(name:'Terry').save(flush: true)
 	}
-	then "we should be able to ask the controller for one", {
+	then "it blows if you try to call any method on the controller variable", {
 		ensureThrows(MissingMethodException) {
 			controller.list()
 		}
