@@ -3,42 +3,70 @@ import grails.plugin.easyb.test.GrailsEasybTestType;
 import grails.plugin.easyb.test.inject.InjectTestRunner
 import groovy.lang.Binding
 
-import org.codehaus.groovy.grails.commons.ApplicationHolder
-import org.codehaus.groovy.grails.test.support.GrailsTestRequestEnvironmentInterceptor;
+import org.apache.commons.lang.StringUtils
+import org.codehaus.groovy.grails.test.support.GrailsTestRequestEnvironmentInterceptor
 import org.codehaus.groovy.grails.test.support.GrailsTestTransactionInterceptor
 import org.springframework.context.ApplicationContext
 
+@Mixin(StringUtils)
 class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 	GrailsTestTransactionInterceptor transactionInterceptor
 	GrailsTestRequestEnvironmentInterceptor requestEnvironmentInterceptor
 	String controllerClassName
+	
 	protected void beforeBehavior() {
 		runnerType = "Groovy Test Case"
 		this.testCase = new JUnit4TestCase()
-		if(controllerClassName != null && controllerClassName != '') {
-			this.testCase.metaClass.controller = controllerClassName
-		}
-		this.transactionInterceptor = new GrailsTestTransactionInterceptor(getAppCxt())
-		this.requestEnvironmentInterceptor = new GrailsTestRequestEnvironmentInterceptor(getAppCxt())
+		if(controllerClassNameHasBeenPreset()) addControllerPropertyToTestCase()
+		transactionInterceptor = new GrailsTestTransactionInterceptor(getAppCxt())
+		requestEnvironmentInterceptor = new GrailsTestRequestEnvironmentInterceptor(getAppCxt())
+	}
+	
+	private boolean controllerClassNameHasBeenPreset() {
+		return isNotBlank(controllerClassName)
+	}
+	
+	private void addControllerPropertyToTestCase() {
+		testCase.metaClass.controller = controllerClassName
 	}
 	
 	@Override
 	public void beforeEachStep() {
 		super.beforeEachStep()
 		
-		if(testCase.transactional) {
-			transactionInterceptor.init()
-		}
-		if(testCase.hasProperty('controller') && testCase.controller) {
-			requestEnvironmentInterceptor.init(testCase.controller)
-		}
+		if(isTransactional()) startTransaction()
+		if(isControllerSetup()) setupControllerMockRequestEnvironment()
 	}
 
+	private boolean isTransactional() {
+		return testCase.transactional
+	}
+	
+	private void startTransaction() {
+		transactionInterceptor.init()
+	}
+	
+	private boolean isControllerSetup() {
+		return (testCase.hasProperty('controller') && testCase.controller)
+	}
+	
+	private void setupControllerMockRequestEnvironment() {
+		requestEnvironmentInterceptor.init(testCase.controller)
+	}
+	
 	@Override
 	public void afterEachStep() {
-		requestEnvironmentInterceptor?.destroy()
+		if(isTransactional()) rollbackTransaction()
+		if(isControllerSetup()) removeControllerMockRequestEnvironment()
+	}
+	
+	private void rollbackTransaction() {
 		transactionInterceptor?.destroy()
 	}
+
+	private void removeControllerMockRequestEnvironment() {
+		requestEnvironmentInterceptor?.destroy()
+	}	
 	
 	public void injectMethods(Binding binding) {
 
