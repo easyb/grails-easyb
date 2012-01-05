@@ -6,21 +6,22 @@ package grails.plugin.easyb.test.inject.unit
  */
 
 import grails.plugin.easyb.test.inject.InjectTestRunner
-import grails.test.ControllerUnitTestCase;
 import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.services.ServiceUnitTestMixin;
+import grails.test.mixin.services.ServiceUnitTestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.test.mixin.web.FiltersUnitTestMixin;
+import grails.test.mixin.web.FiltersUnitTestMixin
 import grails.test.mixin.web.GroovyPageUnitTestMixin
 import grails.test.mixin.web.UrlMappingsUnitTestMixin
-import grails.test.mixin.webflow.WebFlowUnitTestMixin;
+import grails.test.mixin.webflow.WebFlowUnitTestMixin
+
+import org.apache.commons.lang.ClassUtils
+import org.apache.commons.lang.StringUtils
 
 public class InjectGrailsTestRunner extends InjectTestRunner {
 	
-	String controllerClassName
 	private List mixins = [ControllerUnitTestMixin, DomainClassUnitTestMixin, GroovyPageUnitTestMixin, UrlMappingsUnitTestMixin,
-					GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin, WebFlowUnitTestMixin]
+					GrailsUnitTestMixin, FiltersUnitTestMixin, ServiceUnitTestMixin]
 	private Set controllerUnitVariables = ['request', 'response', 'webRequest',
 											'params', 'session', 'model', 'flash', 'views'] as SortedSet
     protected void beforeBehavior() {
@@ -29,17 +30,18 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
         addGrailsTestMixins()
         runJUnitAnnotatedMethods(org.junit.BeforeClass)
     }
-
 	private void addGrailsTestMixins() {
-		testCase.metaClass.mixin mixins
-		testCase.metaClass{
-			mockController = {Class clazz ->
-				mixedIn[ControllerUnitTestMixin].mockController(clazz)
-			}
-			mockControllerWithWebFlow = {Class clazz ->
-				mixedIn[WebFlowUnitTestMixin].mockController(clazz)
-			}
+		mixins.each {mixin ->
+			testCase.metaClass.mixin mixin
 		}
+//		testCase.metaClass{
+//			mockController = {Class clazz ->
+//				mixedIn[ControllerUnitTestMixin].mockController(clazz)
+//			}
+//			mockControllerWithWebFlow = {Class clazz ->
+//				mixedIn[WebFlowUnitTestMixin].mockController(clazz)
+//			}
+//		}
     }
 	
 	protected void afterBehavior() {
@@ -55,6 +57,8 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	public void afterEachStep() {
 		runJUnitAnnotatedMethods(org.junit.After)
 		
+		
+		//FIXME
 		if (testCase && binding) {
 			binding.setVariable("controller", null)
 			unbindControllerUnitVariables(binding)
@@ -122,19 +126,7 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 			def mockController = testCase.mockController(clazz)
 			binding.setVariable("controller", mockController)
 			bindControllerUnitVariables(binding)
-			mockController
-		}
-		
-		binding.mockCommandObject = {Class clazz ->
-			testCase.mockCommandObject(clazz)
-		}
-	}
-	
-	private webFlowBindings(def binding) {
-		binding.mockControllerWithWebFlow = {Class clazz ->
-			def mockController = testCase.mockControllerWithWebFlow(clazz)
-			binding.setVariable("controller", mockController)
-			bindControllerUnitVariables(binding)
+
 			mockController
 		}
 		

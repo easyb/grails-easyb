@@ -21,7 +21,7 @@ public class InjectUnitTestRunnerFactory implements TestRunnerFactory {
 
     @Override
     public InjectTestRunner findMatchingRunner(String expectedMatchingGrailsClass, Behavior currentBehavior, GrailsEasybTestType gett) {
-        return detectRunner(expectedMatchingGrailsClass)
+        return detectRunner(gett, expectedMatchingGrailsClass)
     }
 
     @Override
@@ -36,11 +36,13 @@ public class InjectUnitTestRunnerFactory implements TestRunnerFactory {
 	
 	private def detectRunner(GrailsEasybTestType gett, String className) {
 		if(className.endsWith("Controller")) {
-			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className)
+			println "$className"
+			return new InjectControllerClassNameAwareTestRunner(gett, className)
+//			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className, binding: currentBehavior.binding)
 		} else if(className.endsWith("ControllerStory")) {
-			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Story")))
+			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Story")), binding: currentBehavior.binding)
 		} else if(className.endsWith("ControllerSpecification")) {
-			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Specification")))
+			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Specification")), binding: currentBehavior.binding)
 		} 
 		return null
 	}
