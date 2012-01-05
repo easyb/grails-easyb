@@ -34,14 +34,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 		mixins.each {mixin ->
 			testCase.metaClass.mixin mixin
 		}
-//		testCase.metaClass{
-//			mockController = {Class clazz ->
-//				mixedIn[ControllerUnitTestMixin].mockController(clazz)
-//			}
-//			mockControllerWithWebFlow = {Class clazz ->
-//				mixedIn[WebFlowUnitTestMixin].mockController(clazz)
-//			}
-//		}
     }
 	
 	protected void afterBehavior() {

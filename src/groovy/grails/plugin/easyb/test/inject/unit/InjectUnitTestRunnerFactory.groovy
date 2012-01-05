@@ -36,9 +36,7 @@ public class InjectUnitTestRunnerFactory implements TestRunnerFactory {
 	
 	private def detectRunner(GrailsEasybTestType gett, String className) {
 		if(className.endsWith("Controller")) {
-			println "$className"
 			return new InjectControllerClassNameAwareTestRunner(gett, className)
-//			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className, binding: currentBehavior.binding)
 		} else if(className.endsWith("ControllerStory")) {
 			return new InjectGrailsTestRunner(grailsEasybTestType: gett, controllerClassName: className.substring(0, className.indexOf("Story")), binding: currentBehavior.binding)
 		} else if(className.endsWith("ControllerSpecification")) {

@@ -21,3 +21,11 @@ scenario "Controller automatically injected based on test package and name", {
         }
     }
 }
+
+scenario "the class name resolved controller should exist for the entire story", {
+	then "the controller should still be bound", {
+		ensure(controller) {
+			isNotNull
+		}
+	}
+}
