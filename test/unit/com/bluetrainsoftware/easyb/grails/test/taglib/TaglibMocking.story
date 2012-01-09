@@ -1,6 +1,5 @@
 package com.bluetrainsoftware.easyb.grails.test.taglib
 
-import grails.easyb.plugin.test.taglib.SimpleTagLib
 import grails.test.mixin.web.GroovyPageUnitTestMixin
 
 import com.bluetrainsoftware.easyb.grails.test.domain.Author

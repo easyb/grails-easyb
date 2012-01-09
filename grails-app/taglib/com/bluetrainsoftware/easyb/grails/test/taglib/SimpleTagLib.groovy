@@ -1,4 +1,4 @@
-package grails.easyb.plugin.test.taglib
+package com.bluetrainsoftware.easyb.grails.test.taglib
 
 class SimpleTagLib {
 	static namespace = 's'

@@ -41,6 +41,12 @@ public class InjectUnitTestRunnerFactory implements TestRunnerFactory {
 			return new InjectControllerClassNameAwareTestRunner(gett, className.substring(0, className.indexOf("Story")))
 		} else if(className.endsWith("ControllerSpecification")) {
 			return new InjectControllerClassNameAwareTestRunner(gett, className.substring(0, className.indexOf("Specification")))
+		} else if(className.endsWith("TagLib")) {
+			return new InjectTagLibClassNameAwareTestRunner(gett, className)
+		} else if(className.endsWith("TagLibStory")) {
+			return new InjectTagLibClassNameAwareTestRunner(gett, className.substring(0, className.indexOf("Story")))
+		} else if(className.endsWith("TagLibSpecification")) {
+			return new InjectTagLibClassNameAwareTestRunner(gett, className.substring(0, className.indexOf("Specification")))
 		} 
 		return null
 	}
