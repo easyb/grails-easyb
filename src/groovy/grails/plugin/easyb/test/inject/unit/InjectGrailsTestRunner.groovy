@@ -49,8 +49,6 @@ public class InjectGrailsTestRunner extends InjectTestRunner {
 	public void afterEachStep() {
 		runJUnitAnnotatedMethods(org.junit.After)
 		
-		
-		//FIXME
 		if (testCase && binding) {
 			binding.setVariable("controller", null)
 			unbindControllerUnitVariables(binding)

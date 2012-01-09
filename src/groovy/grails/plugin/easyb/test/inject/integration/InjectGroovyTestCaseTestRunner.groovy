@@ -1,4 +1,5 @@
 package grails.plugin.easyb.test.inject.integration
+import junit.framework.TestCase;
 import grails.plugin.easyb.test.GrailsEasybTestType
 import grails.plugin.easyb.test.inject.InjectTestRunner
 import groovy.lang.Binding
@@ -17,11 +18,7 @@ class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 	protected void beforeBehavior() {
 		runnerType = "Groovy Test Case"
 		createTestCaseAndAddProperties()
-		
 		if(controllerClassNameHasBeenPreset()) testCase.controller = controllerClassName
-		
-		transactionInterceptor = new GrailsTestTransactionInterceptor(getAppCxt())
-		requestEnvironmentInterceptor = new GrailsTestRequestEnvironmentInterceptor(getAppCxt())
 	}
 	
 	private void createTestCaseAndAddProperties() {
@@ -41,9 +38,12 @@ class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 	@Override
 	public void beforeEachStep() {
 		super.beforeEachStep()
-		
-		if(isTransactional()) startTransaction()
-		if(isControllerSetup()) setupControllerMockRequestEnvironment()
+		requestEnvironmentInterceptor = new GrailsTestRequestEnvironmentInterceptor(getAppCxt())
+		if(isTransactional()) {
+			transactionInterceptor = new GrailsTestTransactionInterceptor(getAppCxt())
+			startTransaction()
+		} 
+		setupControllerMockRequestEnvironment()
 	}
 
 	private boolean isTransactional() {
@@ -64,16 +64,24 @@ class InjectGroovyTestCaseTestRunner extends InjectTestRunner {
 	
 	@Override
 	public void afterEachStep() {
-		if(isTransactional()) rollbackTransaction()
-		if(isControllerSetup()) removeControllerMockRequestEnvironment()
+		rollbackTransaction()
+		removeControllerMockRequestEnvironment()
+	}
+	
+	@Override
+	public void afterBehavior() {
+		testCase.transactional = true
+		testCase.controller = null
 	}
 	
 	private void rollbackTransaction() {
 		transactionInterceptor?.destroy()
+		transactionInterceptor = null
 	}
 
 	private void removeControllerMockRequestEnvironment() {
 		requestEnvironmentInterceptor?.destroy()
+		requestEnvironmentInterceptor = null
 	}	
 	
 	public void injectMethods(Binding binding) {

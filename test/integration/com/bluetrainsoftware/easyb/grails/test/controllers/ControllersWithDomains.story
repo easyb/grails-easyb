@@ -1,6 +1,8 @@
 package com.bluetrainsoftware.easyb.grails.test.controllers;
 
-
+before "setup before scenarios",{
+		transactional true
+}
 shared_behavior "AuthorController setup",{
 	given "an AuthorController is setup", {
 		controller 'com.bluetrainsoftware.easyb.grails.test.controllers.AuthorController'

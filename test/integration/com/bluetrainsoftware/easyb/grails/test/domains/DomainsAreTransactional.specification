@@ -1,26 +1,15 @@
 package com.bluetrainsoftware.easyb.grails.test.domains
 
 import com.bluetrainsoftware.easyb.grails.test.domain.Author
+transactional true
 it "is possible to save a domain and let it be wrapped in transaction that will be rollbacked after the spec of story is done",{
-	transactional true
-	def author = new Author(name: 'Jonas').save(flush: true)
+	def author = new Author(name: 'NotPreviouslyPersisted').save(flush: true)
 	author.shouldNotBe null
 }
 
 it "is not possible to retrieve the domain from the previous spec or story", {
-	def author = Author.findByName('Jonas')
+	def author = Author.findByName('NotPreviouslyPersisted')
 	ensure(author) {
 		isNull
 	}
-}
-
-it "is possible to save a domain and let it be wrapped in transaction that won't be rollbacked after the spec of story is done",{
-	transactional false
-	def author = new Author(name: 'Jonas').save(flush: true)
-	author.shouldNotBe null
-}
-
-it "is then possible to retrieve the domain from the previous spec or story", {
-	def author = Author.findByName('Jonas')
-	author.name.shouldBe 'Jonas'
 }
