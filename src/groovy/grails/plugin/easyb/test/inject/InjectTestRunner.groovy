@@ -1,5 +1,9 @@
 package grails.plugin.easyb.test.inject
 
+import grails.plugin.easyb.test.GrailsEasybTestType
+
+import org.easyb.domain.Behavior
+
 /*
  * Created by IntelliJ IDEA.
  * User: richard
@@ -9,17 +13,19 @@ package grails.plugin.easyb.test.inject
 public class InjectTestRunner {
     protected def testCase
     protected Binding binding
+	protected Behavior behavior
+	GrailsEasybTestType grailsEasybTestType
     String runnerType = "Uninitialized"
 
-    protected void initialize() {
+    protected void beforeBehavior() {
     }
 
+	protected void afterBehavior() {
+	}
+	
     public void injectMethods(Binding binding) {
-        //println "top level inject"
         this.binding = binding
-
-        initialize()
-        //println "and out"
+        beforeBehavior()
     }
 
 
@@ -28,17 +34,14 @@ public class InjectTestRunner {
     }
 
 
-    public void setUp() {
-        //println "settup testcase"
-        if (testCase) {
-            testCase.setUp()
-        }
+    public void beforeEachStep() {
     }
 
-    public void tearDown() {
-        //println "teardown testcase"
-        if (testCase) {
-            testCase.tearDown()
-        }
+    public void afterEachStep() {
     }
+	
+	protected getAppCxt() {
+		grailsEasybTestType.getApplicationContext()
+	}
+	
 }

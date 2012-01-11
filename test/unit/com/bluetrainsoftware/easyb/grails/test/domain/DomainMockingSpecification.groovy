@@ -20,24 +20,11 @@ it "must let us mock a valid author", {
     a.validate().shouldBe true
 }
 
-it "must blow up if mocking not enavled", {
+it "must blow up if mocking not enabled", {
     Author a = new Author(name: 'Me')
-    ensureThrows(MissingMethodException) {
-        a.validate()
-    }
-}
-
-it "must let us mock logging", {
-    mockLogging(Author, true)
-    Author a = new Author(name: 'You')
-    a.fakeLogging() // should be ok
-}
-
-it "must explode without mock logging", {
-    Author a = new Author(name: 'You')
-    ensureThrows(MissingPropertyException) {
-        a.fakeLogging() // should be explosions
-    }
+	ensureThrows(java.lang.IllegalStateException) {
+    	a.validate()
+	}
 }
 
 it "must allow mocking of domains", {

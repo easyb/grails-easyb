@@ -1,0 +1,21 @@
+package com.bluetrainsoftware.easyb.grails.test.domains
+import com.bluetrainsoftware.easyb.grails.test.domain.Author
+
+//It would have been more adequate to have a before, like below, to set transactional false,
+//but the before runs after the it!!!
+//before "setup transactions to not rollback",{
+//	transactional false
+//}
+
+//Transactional false really means that no rollbacks of data is done after the tests
+transactional false
+
+it "is possible to save a domain and let it be wrapped in transaction that won't be rollbacked after the spec of story is done",{
+	def author = new Author(name: 'Jonas').save(flush: true)
+	author.shouldNotBe null
+}
+
+it "is then possible to retrieve the domain from the previous spec or story", {
+	def author = Author.findByName('Jonas')
+	author.name.shouldBe 'Jonas'
+}
