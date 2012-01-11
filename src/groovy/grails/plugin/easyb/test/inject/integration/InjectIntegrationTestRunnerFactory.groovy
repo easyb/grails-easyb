@@ -22,8 +22,7 @@ public class InjectIntegrationTestRunnerFactory implements TestRunnerFactory {
 
 	@Override
 	InjectTestRunner findDynamicRunner(String style, String name, String expectedMatchingGrailsClass, Behavior currentBehavior, GrailsEasybTestType gett) {
-		println "style: $style, name: $name"
-		
+		return null
 	}
 
 	@Override
