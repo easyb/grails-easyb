@@ -1,0 +1,18 @@
+package com.bluetrainsoftware.easyb.grails.test.support
+
+import org.codehaus.groovy.grails.plugins.codecs.HTMLCodec;
+
+import grails.test.GrailsMock
+
+import com.bluetrainsoftware.easyb.grails.test.service.AuthorService
+
+it "should be possible to mock a codec",{
+	mockCodec(HTMLCodec)
+}
+
+it "should be possible mock a collaborator", {
+	def strictControl = mockFor(AuthorService)
+	ensure(strictControl instanceof GrailsMock) {
+		isTrue
+	}
+}

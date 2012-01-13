@@ -11,3 +11,9 @@ easyb.launch
 out
 target
 web-app
+.classpath
+.settings
+.project
+target-eclipse
+.gradle
+build.gradle
